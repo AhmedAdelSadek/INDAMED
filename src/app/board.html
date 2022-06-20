@@ -1,0 +1,154 @@
+<div style="height: 80vh;" fxLayout="column">
+    <mat-toolbar color="primary">
+        <mat-toolbar-row>
+            <button mat-icon-button (click)="sidenav.toggle()" fxShow="true" fxHide.gt-sm>
+                <mat-icon>menu</mat-icon>
+            </button>
+            <div fxShow="true" fxHide.lt-md fxLayout="row" fxLayoutAlign="space-between center" fxFlex="100">
+                <!-- The following menu items will be hidden on both SM and XS screen sizes -->
+                <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <input type="text" placeholder="{{'Search'}}" [formControl]="availableSearchInput">
+                    <mat-icon>search</mat-icon>
+                </div>
+
+                <mat-select [formControl]="team" (selectionChange)="filterByTeam($event)"
+                    [ngStyle]="{'font-size': '14px','max-width': '9%'}">
+                    <ng-container *ngFor="let t of TeamArr">
+                        <mat-option [value]="t">{{t}}</mat-option>
+                    </ng-container>
+                </mat-select>
+                <mat-select [value]="'Alle'" (selectionChange)="filterByAffected($event)"
+                    [ngStyle]="{'font-size': '14px','max-width': '4%'}">
+                    <ng-container *ngFor="let a of affectedArr">
+                        <mat-option [value]="a">{{a}}</mat-option>
+                    </ng-container>
+                </mat-select>
+                <div fxLayout="row" fxLayoutAlign=" center">
+                    <mat-icon [ngStyle]="{'font-size': '22px'}">control_camera</mat-icon>
+                    <span [ngStyle]="{'font-size': '14px'}">
+                        Geplant {{teamToggel.value ? firstTeamGeplantResult : secondTeamGeplantResult}}
+                        Umgesetzt {{teamToggel.value ? firstTeamUmgesetztResult.length :
+                        secondTeamUmgesetztResult.length}}
+                    </span>
+                </div>
+                <button mat-button (click)="newTickt()"
+                    [ngStyle]="{'background': '#669120','color': 'white', 'font-size': '14px', 'line-height': '28px'}">
+                    <mat-icon>add</mat-icon>New Ticket anlegen
+                </button>
+                <button mat-icon-button (click)="reloadCurrentPage()">
+                    <mat-icon [ngStyle]="{'font-size': '22px'}">refresh</mat-icon>
+                </button>
+                <mat-icon (click)="onClick()" class="clickable">cloud_download</mat-icon>
+                <form [formGroup]="form">
+                    <button class="stBu">
+                        <mat-icon [ngStyle]="{'position': 'absolute'}">settings
+                        </mat-icon>
+                        <mat-select formControlName="name" (selectionChange)="filterByChecked($event)" multiple>
+                            <mat-option *ngFor="let x of nameList" [value]="x.value">
+                                {{x.viewValue}}
+                            </mat-option>
+                        </mat-select>
+                    </button>
+                </form>
+            </div>
+        </mat-toolbar-row>
+    </mat-toolbar>
+
+    <mat-sidenav-container fxFlexFill>
+        <mat-sidenav #sidenav>
+            <mat-nav-list fxLayout="column" fxLayoutAlign=" center">
+                <a (click)="sidenav.toggle()" href="" mat-list-item>Close</a>
+
+                <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <input type="text" placeholder="{{'Search'}}" [formControl]="availableSearchInput">
+                    <mat-icon>search</mat-icon>
+                </div>
+                <mat-select [formControl]="team" (selectionChange)="filterByTeam($event)">
+                    <ng-container *ngFor="let t of TeamArr">
+                        <mat-option [value]="t">{{t}}</mat-option>
+                    </ng-container>
+                </mat-select>
+                <mat-select [value]="'Alle'" (selectionChange)="filterByAffected($event)">
+                    <ng-container *ngFor="let a of affectedArr">
+                        <mat-option [value]="a">{{a}}</mat-option>
+                    </ng-container>
+                </mat-select>
+                <div fxLayout="row" fxLayoutAlign=" center">
+                    <mat-icon [ngStyle]="{'font-size': '22px'}">control_camera</mat-icon>
+                    <span [ngStyle]="{'font-size': '14px'}">
+                        Geplant {{teamToggel.value ? firstTeamGeplantResult : secondTeamGeplantResult}}
+                        Umgesetzt {{teamToggel.value ? firstTeamUmgesetztResult.length :
+                        secondTeamUmgesetztResult.length}}
+                    </span>
+                </div>
+                <button mat-button (click)="newTickt()"
+                    [ngStyle]="{'background': '#669120','color': 'white', 'font-size': '14px', 'line-height': '21px'}">
+                    <mat-icon>add</mat-icon>New Ticket anlegen
+                </button>
+                <button mat-icon-button (click)="reloadCurrentPage()">
+                    <mat-icon [ngStyle]="{'font-size': '22px'}">refresh</mat-icon>
+                </button>
+                <mat-icon (click)="onClick()" class="clickable">cloud_download</mat-icon>
+                <form [formGroup]="form">
+                    <button class="stBu">
+                        <mat-icon [ngStyle]="{'position': 'absolute'}">settings
+                        </mat-icon>
+                        <mat-select formControlName="name" (selectionChange)="filterByChecked($event)" multiple>
+                            <mat-option *ngFor="let x of nameList" [value]="x.value">
+                                {{x.viewValue}}
+                            </mat-option>
+                        </mat-select>
+                    </button>
+                </form>
+            </mat-nav-list>
+        </mat-sidenav>
+        <mat-sidenav-content fxFlexFill>
+            <!--container for all Columns-->
+            <div cdkDropList cdkDropListOrientation="horizontal" class="board-columns" fxLayout="row"
+                fxLayoutAlign="space-between">
+                <!--singel column =>  board?.columns  or obs | async  -->
+                <div cdkDragLockAxis="x" class="board-column" *ngFor="let column of board?.columns; let i = index"
+                    cdkDrag>
+                    <!--Name-->
+                    <div class="column-title" fxLayout="row" fxLayoutAlign="space-around center" cdkDragHandle>
+                        <span>
+                            {{ column?.name }}
+                        </span>
+                        <span *ngIf="column.tasks.length > 0">
+                            {{ column.tasks?.length }}
+                        </span>
+                    </div>
+                    <!--/Name-->
+                    <!--Details  => column.tasks  or obs | async   -->
+                    <div class="tasks-container" id="{{column.id}}" [cdkDropListConnectedTo]="columnIndex" cdkDropList
+                        [cdkDropListData]="column.tasks" (cdkDropListDropped)="drop($event)">
+                        <div class="task" *ngFor="let item of column?.tasks" cdkDrag>
+                            <div [ngStyle]="{'background': 'rgb(162 198 235)', 'height': '34px'}" fxLayout="row"
+                                fxLayoutAlign="space-around center">
+                                <span [ngStyle]="{'font-weight': 'bold'}">{{item?.mo_number}}</span>
+                                <span class="item-point" *ngIf="item?.points">
+                                    {{item?.points}}
+                                </span>
+                            </div>
+                            <div id="count" [ngStyle]="{'border-left-color':item?.priority === 'Hoch' ? 'red' 
+                                : item?.priority === 'Mittel' ? 'orange' 
+                                : item?.priority === 'Niedrig' ? 'green'
+                                : item?.priority === '!!!Sofort' ? '#af0c0c'
+                                : '#ffffff00' }">
+                                <div [ngStyle]="{'word-break': 'break-all', 'font-size': 'smaller','color':'#003cff'}">
+                                    {{item?.subject}}
+                                </div>
+                                <div [ngStyle]="{'font-size': 'smaller'}">
+                                    {{item?.affected}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/Details-->
+                </div>
+                <!--/singel column-->
+            </div>
+            <!--/container for all Columns-->
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>
